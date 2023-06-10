@@ -1,35 +1,47 @@
 # Importing necessary libraries
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from flask.wrappers import Response
-from loadDocs import initialize_qa, get_answer
+from loadDocs import initialize_qa, get_answer, initialize_index, get_answer_from_index
 
 # Creating a Flask application
 app = Flask(__name__)
+CORS(app)
 
 # Initialize qa when the app starts
+print("Initializing QA...")
 qa = initialize_qa()
+print("QA Initialized")
+
+# Initialize the index when the app starts
+print("Initializing Index...")
+# index = initialize_index()
+print("Index Initialized")
 
 # Defining a POST endpoint
 @app.route('/api', methods=['POST'])
 def post_json():
-  data = request.get_json(force=True)
+    data = request.get_json(force=True)
 
-  if 'query' not in data:
-      response = {
-          'status': 'error',
-          'message': 'Missing required key: query'
-      }
-      return jsonify(response), 400
+    if 'query' not in data:
+        response = {
+            'status': 'error',
+            'message': 'Missing required key: query'
+        }
+        return jsonify(response), 400
 
-  query = data['query']
-  answer = get_answer(qa, query)
+    query = data['query']
+    qaAnswer = get_answer(qa, query)
+    # indexAnswer = get_answer_from_index(index, query)
 
-  response = {
-      'status': 'success',
-      'message': 'Query received successfully',
-      'answer': answer
-  }
-  return jsonify(response), 200
+    response = {
+        'data': qaAnswer
+        # 'localAnswer': indexAnswer
+    }
+
+    print(response)
+
+    return jsonify(response), 200
 
 # Running the Flask application
 if __name__ == '__main__':
