@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask.wrappers import Response
-from loadDocs import initialize_qa, get_answer, initialize_index, get_answer_from_index
+from loadDocs import initialize_qa, get_answer
 
 # Creating a Flask application
 app = Flask(__name__)
@@ -40,7 +40,6 @@ def post_json():
     }
 
     print(response)
-
     return jsonify(response), 200
 
 # Running the Flask application

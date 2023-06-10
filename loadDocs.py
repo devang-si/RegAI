@@ -19,7 +19,7 @@ def initialize_qa():
     )
     docs = loader.load()    
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=4000, chunk_overlap=0, separators=[" ", ",", "\n"]
+        chunk_size=4000, chunk_overlap=0, separators=[" ", ",", "n"]
     )
 
     texts = text_splitter.split_documents(docs)
@@ -46,10 +46,24 @@ def initialize_index():
     return index
 
 
-def get_answer_from_index(index, query):
-    answer = index.query(query)
-    return answer
+# def get_answer_from_index(index, query):
+#     answer = index.query(query)
+#     return answer
 
-def get_answer(qa, query):
+def get_answer(qa, data):
+
+
+    name = data['name']
+    age = data['age']
+    salary = data['salary']
+    gender = data['gender']
+    caste = data['caste']
+    state = data['state']
+    additionalInfo = data['additionalInfo']
+
+    query = "My name is " + name + " salary is " + str(salary) + " age is " + str(age) + " gender is " + gender + " caste is " + caste + " state is " + state + "additional info about me is: " + additionalInfo + ". I want to know about policies available for me. give the response in the json format. For eg. { \"policies\": [ { \"policy\": \"Policy 1\", \"summary\": \"Summary 1\", \"benefits\": \"Benefits 1\" }, { \"policy\": \"Policy 2\", \"summary\": \"Summary 2\", \"benefits\": \"Benefits 2\" } ] }"
+
+    # query = "My personal info is " + data["name"] + " I want to know about policies available for me."
     answer = qa.run(query)
+    print(answer)
     return answer
