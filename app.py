@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask.wrappers import Response
-from loadDocs import initialize_qa, get_answer
+from loadDocs import index_documents, initialize_qa, get_answer
 
 # Creating a Flask application
 app = Flask(__name__)
@@ -17,6 +17,10 @@ print("QA Initialized")
 print("Initializing Index...")
 # index = initialize_index()
 print("Index Initialized")
+
+# print("Indexing Documents...")
+# index_documents("training documents")
+# print("Documents Indexed")
 
 # Defining a POST endpoint
 @app.route('/api', methods=['POST'])

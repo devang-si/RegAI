@@ -1,3 +1,4 @@
+import json
 import os
 from dotenv import load_dotenv, find_dotenv
 
@@ -8,6 +9,8 @@ from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
+from llama_index import SimpleDirectoryReader, GPTVectorStoreIndex, \
+                        LLMPredictor, PromptHelper
 
 _ = load_dotenv(find_dotenv())
 
@@ -19,7 +22,7 @@ def initialize_qa():
     )
     docs = loader.load()    
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=4000, chunk_overlap=0, separators=[" ", ",", "n"]
+        chunk_size=4000, chunk_overlap=0.2, separators=[" ", ",", "n"]
     )
 
     texts = text_splitter.split_documents(docs)
@@ -61,9 +64,34 @@ def get_answer(qa, data):
     state = data['state']
     additionalInfo = data['additionalInfo']
 
-    query = "My name is " + name + " salary is " + str(salary) + " age is " + str(age) + " gender is " + gender + " caste is " + caste + " state is " + state + "additional info about me is: " + additionalInfo + ". I want to know about policies available for me. give the response in the json format. For eg. { \"policies\": [ { \"policy\": \"Policy 1\", \"summary\": \"Summary 1\", \"benefits\": \"Benefits 1\" }, { \"policy\": \"Policy 2\", \"summary\": \"Summary 2\", \"benefits\": \"Benefits 2\" } ] }"
+    query = "My name is " + name + " salary is " + str(salary) + " age is " + str(age) + " gender is " + gender + " caste is " + caste + " state is " + state + "additional info about me is: " + additionalInfo + ". I want to know about policies available for me. give the response in the json format with policies as array of objects and each object having three fields: policy, summary, benefits. give only policies array in output no extra data. [JSON]"
 
-    # query = "My personal info is " + data["name"] + " I want to know about policies available for me."
     answer = qa.run(query)
-    print(answer)
-    return answer
+    parsed_response = json.loads(answer)
+    print(parsed_response)
+    return parsed_response
+
+def index_documents(folder):
+    max_input_size    = 4096
+    num_output       = 512
+    chunk_overlap_ratio = 0.2
+    chunk_size_limit  = 600
+
+    prompt_helper = PromptHelper(max_input_size = max_input_size, 
+                                 num_output = num_output, 
+                                 chunk_overlap_ratio = chunk_overlap_ratio, 
+                                 chunk_size_limit = chunk_size_limit)
+    
+    llm_predictor = LLMPredictor(
+        llm = ChatOpenAI(temperature = 0.7, 
+                         model_name = "gpt-3.5-turbo")
+        )
+
+    documents = SimpleDirectoryReader(folder).load_data()
+
+    index = GPTVectorStoreIndex.from_documents(
+                documents, 
+                llm_predictor = llm_predictor, 
+                prompt_helper = prompt_helper)
+
+    index.storage_context.persist(persist_dir=".") # save in current directory
