@@ -14,9 +14,9 @@ qa = initialize_qa()
 print("QA Initialized")
 
 # Initialize the index when the app starts
-print("Initializing Index...")
+# print("Initializing Index...")
 # index = initialize_index()
-print("Index Initialized")
+# print("Index Initialized")
 
 # print("Indexing Documents...")
 # index_documents("training documents")
@@ -27,24 +27,18 @@ print("Index Initialized")
 def post_json():
     data = request.get_json(force=True)
 
-    if 'query' not in data:
-        response = {
-            'status': 'error',
-            'message': 'Missing required key: query'
-        }
-        return jsonify(response), 400
+    # if 'query' not in data:
+    #     response = {
+    #         'status': 'error',
+    #         'message': 'Missing required key: query'
+    #     }
+    #     return jsonify(response), 400
 
-    query = data['query']
-    qaAnswer = get_answer(qa, query)
+    qaAnswer = get_answer(qa, data)
     # indexAnswer = get_answer_from_index(index, query)
 
-    response = {
-        'data': qaAnswer
-        # 'localAnswer': indexAnswer
-    }
-
-    print(response)
-    return jsonify(response), 200
+    print(qaAnswer)
+    return jsonify(qaAnswer), 200
 
 # Running the Flask application
 if __name__ == '__main__':

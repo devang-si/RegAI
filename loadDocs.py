@@ -67,6 +67,9 @@ def get_answer(qa, data):
     query = "My name is " + name + " salary is " + str(salary) + " age is " + str(age) + " gender is " + gender + " caste is " + caste + " state is " + state + "additional info about me is: " + additionalInfo + ". I want to know about policies available for me. give the response in the json format with policies as array of objects and each object having three fields: policy, summary, benefits. give only policies array in output no extra data. [JSON]"
 
     answer = qa.run(query)
+    print("Answer from qa")
+    print(answer)
+
     parsed_response = json.loads(answer)
     print(parsed_response)
     return parsed_response
